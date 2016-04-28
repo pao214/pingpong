@@ -1,65 +1,81 @@
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
+/**
+ * main game activity super class
+ * handles transfer, control and memory management
+ * @author DO NOT USE THIS!
+ */
 @SuppressWarnings("serial")
-public class GameActivity extends JPanel implements Runnable{
+public class GameActivity extends JPanel {
 	
 	Main main;
-	Thread t;
- 	HashMap<JComponent, Integer> ids; 
- 	
- 	public GameActivity() {
-		t = new Thread();
-	}
 	
- 	
-	@SuppressWarnings("unused")
-	private void add(JComponent view){
-		add(view);
-		ids.put(view, generateId(ids));
-	}
-	
-	@SuppressWarnings("unused")
-	private int getId(JComponent jComponent){
-		return ids.get(jComponent);
-	}
-	
-	private int generateId(HashMap<JComponent, Integer> ids){
-		HashSet<Integer> set = (HashSet<Integer>) ids.values(); 
-		boolean b= true;
-		Random random = new Random();
-		int next = 0;
-		do{
-			next = random.nextInt(Integer.MAX_VALUE);
-			b = set.contains(next);
-		}while(b);
-		return next;
-	}
-	
+	/**
+	 * remove current Panel from the frame 
+	 */
 	protected void halt(){
 		main.jFrame.remove(this);
 	}
 	
-	protected void onCreate(Main main){
+	/**
+	 * called on creation
+	 * @param main
+	 */
+	protected void onCreate(final Main main){
 		this.main = main;
-		main.jFrame.repaint();
 		main.jFrame.add(this);
+		registerKeyboardAction(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				halt();
+				final GameActivity activity = main.stack.pop();
+				main.jFrame.addWindowFocusListener(new WindowFocusListener() {
+					
+					@Override
+					public void windowLostFocus(WindowEvent arg0) {
+						
+					}
+					
+					@Override
+					public void windowGainedFocus(WindowEvent arg0) {
+						activity.requestFocusInWindow();
+					}
+				});
+				main.jFrame.add(activity);
+				activity.onCreate(main);
+				main.jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+				main.jFrame.setVisible(true);
+			}
+			
+		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
+		main.jFrame.repaint();
 	}
 	
-	@Override
-	public void run() {	
-		
-	}
-	
+	/**
+	 * transfers control to a new activity
+	 * @param intent
+	 */
 	public void startActivity(Intent intent){
 		main.transfer(intent);
 	}
 	
+	/**
+	 * retrieve intents of previous activities
+	 * @param key
+	 * @return
+	 */
 	public Object getExtra(String key){
-		return main.intent.getExtra(key);
+		return main.objects.get(key);
 	}
 }

@@ -1,15 +1,33 @@
+import java.util.HashMap;
+import java.util.Stack;
+
 import javax.swing.JFrame;
 
+/**
+ * Main class that handles event flow 
+ * current - contains current activity
+ * objects - contains intent sent by previous activity 
+ * launcher - contains launcher activity
+ * @author DO NOT USE THIS!
+ *
+ */
 public class Main {
-	
+	//TODO splash screen
 	JFrame jFrame;
 	GameActivity current;
-	Intent intent;
+	HashMap<String, Object> objects;
+	Stack<GameActivity> stack = new Stack<GameActivity>();
 	
+	/**
+	 * transfer control to incoming activity
+	 * @param intent
+	 */
 	public void transfer(Intent intent){
 		
 		Class<? extends GameActivity> activity = intent.activity;
-		this.intent = intent;
+		this.objects = intent.objects;
+		
+		stack.push(current);
 		
 		if (current!=null)
 			current.halt();
@@ -26,6 +44,11 @@ public class Main {
 		jFrame.setVisible(true);
 	}
 	
+	/**
+	 * starts launcher activity
+	 * sets full screen mode
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		
 		Main main = new Main();
@@ -33,7 +56,8 @@ public class Main {
 		
 		GameActivity launcher = new Menu();
 		main.current = launcher;
-		launcher.onCreate(main);	
+		launcher.onCreate(main);
+		main.stack.push(launcher);
 		
 		main.jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Already there
 		main.jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);

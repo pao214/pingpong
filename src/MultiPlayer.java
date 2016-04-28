@@ -1,8 +1,5 @@
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 @SuppressWarnings("serial")
 public class MultiPlayer extends GameActivity {
@@ -11,27 +8,30 @@ public class MultiPlayer extends GameActivity {
 	 * Create the panel.
 	 */
 	public MultiPlayer() {
+		super();
 		setLayout(null);
-			
-		JButton btnHost = new JButton("Host");
-		btnHost.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				startActivity(new Intent(Host.class));
-			}
-		});
-		btnHost.setBounds(58, 130, 89, 23);
-		add(btnHost);
+	}
+	
+	/**
+	 * Check if user wants to host or connect the program
+	 */
+	@Override
+	protected void onCreate(Main main) {
+		super.onCreate(main);
+		String[] options = {"Host", "Connect"};
+		int n = JOptionPane.showOptionDialog(getParent(),
+				"Would you like to Host/Connect?",
+				"Network Game",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				options[1]);
 		
-		JButton btnConnect = new JButton("Connect");
-		btnConnect.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-
-			}
-		});
-		btnConnect.setBounds(298, 130, 89, 23);
-		add(btnConnect);
-		
+		if(n == 0){
+			startActivity(new Intent(Host.class));
+		}else{
+			startActivity(new Intent(Connect.class));
+		}
 	}
 }
