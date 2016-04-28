@@ -4,6 +4,11 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.JButton;
 
@@ -13,28 +18,51 @@ public class Settings extends GameActivity {
 	/**
 	 * Create the panel.
 	 */
-	public int Theme=1;
-	public int Position=0;
-	public int Volume=0;
-	public int MulCompPls=3;
 	
 	public Settings() {
 		setLayout(null);
 		
-		JComboBox<String> gameTheme = new JComboBox<String>();
+		final JComboBox<String> gameTheme = new JComboBox<String>();
 		gameTheme.setModel(
 				new DefaultComboBoxModel<String>(
 						new String[] {"Theme1", "Theme2", "Theme3"}));
 		gameTheme.setBounds(99, 72, 128, 22);
+		gameTheme.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				
+				Constants.index = gameTheme.getSelectedIndex();
+				switch(Constants.index){
+					case Constants.theme1:
+						Constants.theme = Constants.t1;
+						break;
+					case Constants.theme2:
+						Constants.theme = Constants.t2;
+						break;
+					case Constants.theme3:
+						Constants.theme = Constants.t3;
+						break;
+				}
+			}
+		});
+		gameTheme.setSelectedIndex(Constants.index);
 		add(gameTheme);
 		
-		JComboBox<String> gameSide = new JComboBox<String>();
+		final JComboBox<String> gameSide = new JComboBox<String>();
 		gameSide.setModel(
-				new DefaultComboBoxModel<String>(new String[] {"BOTTOM", "LEFT", "UP", "RIGHT"}));
+				new DefaultComboBoxModel<String>(new String[] {"BOTTOM", "RIGHT", "UP", "LEFT"}));
 		gameSide.setBounds(99, 107, 128, 22);
+		gameSide.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				Constants.position = gameSide.getSelectedIndex();
+			}
+		});
+		gameSide.setSelectedIndex(Constants.position);
 		add(gameSide);
 		
-//		JLabel lblDisplay = DefaultComponentFactory.getInstance().createTitle("DISPLAY");
 		JLabel lblDisplay = new JLabel("DISPLAY");
 		lblDisplay.setFont(new Font("Stencil", Font.PLAIN, 13));
 		lblDisplay.setBounds(12, 30, 104, 29);
@@ -64,10 +92,18 @@ public class Settings extends GameActivity {
 		lblPlaylist.setBounds(22, 229, 56, 16);
 		add(lblPlaylist);
 		
-		JComboBox<String> comboBox_2 = new JComboBox<String>();
+		final JComboBox<String> comboBox_2 = new JComboBox<String>();
 		comboBox_2.setModel(
 				new DefaultComboBoxModel<String>(new String[] {"ON", "OFF"}));
 		comboBox_2.setBounds(99, 197, 128, 22);
+		comboBox_2.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				Constants.sound = comboBox_2.getSelectedIndex();
+			}
+		});
+		comboBox_2.setSelectedIndex(Constants.sound);
 		add(comboBox_2);
 				
 		JButton back = new JButton("BACK");
@@ -78,6 +114,16 @@ public class Settings extends GameActivity {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				try {
+					FileWriter writer = new FileWriter(new File("config.txt"));
+					writer.write(Constants.index + "\n"
+							+ Constants.position + "\n"
+							+ Constants.sound + "\n");
+					writer.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
 				startActivity(new Intent(Menu.class));
 			}
 		});
